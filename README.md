@@ -21,11 +21,21 @@ MyProject/
 │   └── ExperimentRunner.h
 │
 ├── data/                  # Datos usados y generados por el programa
-│   ├── points_data.csv    # Datos de entrada
-│   └── results.csv        # Datos de salida
+│   ├── points_data.csv    # Datos de entrada 
+│   └── results_distances.csv        # Datos de distancia entre los puntos más cercanos
+│   └── results_times.csv            # Datos de tiempos de ejecución de los algoritmos
 │
-├── scripts/               # Scripts de utilidad, e.g., para graficación
-│   └── plot_results.py
+├── scripts/                   # Scripts de utilidad, e.g., para graficación
+│   ├── plot_results_times.py  # Grafica los tiempos de ejecución
+│   ├── scatter_plot_distances.py   # Grafica las distancias entre los puntos más cercanos en 3D
+│   └── generador_puntos.py         # Genera puntos aleatorios en 3D
+│
+├── build/                     # Archivos objeto y ejecutables
+│
+├── Makefile                   # Makefile para automatizar la compilación y otras tareas
+│
+└── README.md                  # Descripción del proyecto, instrucciones de uso
+│   
 │
 ├── build/                 # Archivos objeto y ejecutables
 │
@@ -41,6 +51,15 @@ El proyecto requiere las siguientes herramientas y bibliotecas:
 - C++ Compiler (GCC recomendado, versión 11 o superior)
 - GNU Make
 - Python 3 (para scripts de análisis y visualización)
+    - Matplotlib (para graficación) 
+    - Pandas (para manejo de datos tabulares) 
+    - Numpy (para manejo de arreglos) 
+    - mpl_toolkits (para graficación 3D) 
+
+    ```bash
+    pip install pandas numpy matplotlib mpl_toolkits
+    ```
+
 
 ## Compilación y Ejecución
 
