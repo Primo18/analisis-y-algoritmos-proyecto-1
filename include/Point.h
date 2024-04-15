@@ -8,11 +8,13 @@
 #include <utility> // Para std::pair
 #include <vector>
 
-struct Point {
+struct Point
+{
   double x, y, z;
 
   // Se define el operador << para permitir imprimir puntos directamente.
-  friend std::ostream &operator<<(std::ostream &os, const Point &p) {
+  friend std::ostream &operator<<(std::ostream &os, const Point &p)
+  {
     return os << p.x << ", " << p.y << ", " << p.z;
   }
 };
