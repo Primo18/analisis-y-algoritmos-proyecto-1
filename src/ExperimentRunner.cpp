@@ -4,46 +4,63 @@
 #include <fstream>
 #include <iostream>
 
-void runExperiments(const std::vector<Point> &allPoints,
-                    const std::vector<int> &sizes,
-                    const std::string &outputFile) {
-  std::ofstream out(outputFile);
+using namespace std;
+
+// Constantes
+const double MIN_DISTANCE =
+    5.0;            // Distancia mínima entre dos puntos para d = 5.0
+const int RUNS = 3; // Número de veces que se ejecutará cada algoritmo
+
+void runExperiments(const vector<Point> &allPoints, const vector<int> &sizes,
+                    const string &outputFile) {
+  ofstream out(outputFile + "_times.csv", ios::app);
+  ofstream distOut(outputFile + "_distances.csv", ios::app);
+
   out << "Size,FB_AverageTime(ns),DC_AverageTime(ns)\n"; // CSV header
+  distOut << "Size,Method,Distances\n"; // CSV header for distances
+
+  set<double> allDistances; // Conjunto para registrar todas las distancias y
+                            // evitar duplicados
 
   for (int size : sizes) {
-    if (size > static_cast<int>(allPoints.size())) {
-      std::cout << "Requested size " << size
-                << " is greater than the available number of points.\n";
-      continue;
-    }
-
-    std::vector<Point> points(allPoints.begin(), allPoints.begin() + size);
+    vector<Point> points(allPoints.begin(), allPoints.begin() + size);
     long long fbTotalTime = 0;
     long long dcTotalTime = 0;
-    int runs = 10; // Número de veces que se ejecutará cada algoritmo
 
-    for (int i = 0; i < runs; ++i) {
+    for (int i = 0; i < RUNS; ++i) {
       // Tiempo del enfoque de fuerza bruta
-      auto fbStart = std::chrono::high_resolution_clock::now();
-      paresCercanosFB(points, 5.0, outputFile);
-      auto fbEnd = std::chrono::high_resolution_clock::now();
+      auto fbStart = chrono::high_resolution_clock::now();
+      auto fbDistances = paresCercanosFB(points, MIN_DISTANCE);
+      auto fbEnd = chrono::high_resolution_clock::now();
       fbTotalTime +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(fbEnd - fbStart)
-              .count();
+          chrono::duration_cast<chrono::nanoseconds>(fbEnd - fbStart).count();
+
+      for (double dist : fbDistances) {
+        // Verifica si la distancia es nueva
+        if (allDistances.insert(dist).second) {
+          distOut << size << ",FB," << dist << "\n";
+        }
+      }
 
       // Tiempo del enfoque de dividir y conquistar
-      auto dcStart = std::chrono::high_resolution_clock::now();
-      paresCercanosDC(points, 5.0, outputFile);
-      auto dcEnd = std::chrono::high_resolution_clock::now();
+      auto dcStart = chrono::high_resolution_clock::now();
+      auto dcDistances = paresCercanosDC(points, MIN_DISTANCE);
+      auto dcEnd = chrono::high_resolution_clock::now();
       dcTotalTime +=
-          std::chrono::duration_cast<std::chrono::nanoseconds>(dcEnd - dcStart)
-              .count();
+          chrono::duration_cast<chrono::nanoseconds>(dcEnd - dcStart).count();
+
+      for (double dist : dcDistances) {
+        // Verifica si la distancia es nueva
+        if (allDistances.insert(dist).second) {
+          distOut << size << ",DC," << dist << "\n";
+        }
+      }
     }
 
-    long long fbAverage = fbTotalTime / runs;
-    long long dcAverage = dcTotalTime / runs;
+    long long fbAverage = fbTotalTime / RUNS;
+    long long dcAverage = dcTotalTime / RUNS;
 
-    out << size << "," << fbAverage << "," << dcAverage
-        << "\n"; // Escribir resultados en el archivo CSV
+    // Escribir resultados de tiempo en el archivo CSV
+    out << size << "," << fbAverage << "," << dcAverage << "\n";
   }
 }

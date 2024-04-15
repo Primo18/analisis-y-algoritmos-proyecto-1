@@ -2,17 +2,19 @@
 #include <fstream>
 #include <sstream>
 
-std::vector<Point> readPointsFromFile(const std::string& filename) {
-    std::vector<Point> points;
-    std::ifstream file(filename);
-    std::string line;
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        Point point;
-        char delimiter;
-        if (ss >> point.x >> delimiter >> point.y >> delimiter >> point.z) {
-            points.push_back(point);
-        }
+using namespace std;
+
+vector<Point> readPointsFromFile(const string &filename) {
+  vector<Point> points;
+  ifstream file(filename); // Abre el archivo en modo lectura
+  string line;             // Almacena cada línea del archivo
+  while (getline(file, line)) {
+    stringstream ss(line); // Convierte la línea en un flujo de entrada
+    Point point;
+    char delimiter; // Delimitador entre las coordenadas x, y, z
+    if (ss >> point.x >> delimiter >> point.y >> delimiter >> point.z) {
+      points.push_back(point);
     }
-    return points;
+  }
+  return points;
 }

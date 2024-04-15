@@ -16,6 +16,8 @@ build/%.o: src/%.cpp
 clean:
 	rm -f build/*
 	rm -f data/results.csv
+	rm -f data/results_distances.csv
+	rm -f data/results_times.csv
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)

@@ -1,89 +1,81 @@
 #include "Algorithms.h"
 #include "Point.h"
 #include <algorithm>
-#include <chrono>
-#include <cmath> // Include cmath for fabs and other functions
-#include <fstream>
-#include <iostream> // Include iostream for std::cout
 
-// Función auxiliar para el método de dividir y conquistar
-void paresCercanosAux(std::vector<Point> &points, double d,
-                      std::ofstream &outFile, const std::string &method) {
-  if (points.size() <= 3) {
-    for (size_t i = 0; i < points.size(); ++i) {
-      for (size_t j = i + 1; j < points.size(); ++j) {
-        double dist = calculateDistance3D(points[i], points[j]);
-        if (dist <= d) {
-          outFile << method << "," << points.size() << "," << dist << std::endl;
-        }
+using namespace std;
+
+// Método de fuerza bruta para encontrar pares cercanos
+set<double> paresCercanosFB(const vector<Point> &points, double d) {
+  set<double> distances;
+
+  for (size_t i = 0; i < points.size(); ++i) {
+    for (size_t j = i + 1; j < points.size(); ++j) {
+      double dist = calculateDistance3D(points[i], points[j]);
+      if (dist <= d) {
+        distances.insert(dist);
       }
     }
-    return;
+  }
+  return distances;
+}
+
+// Función auxiliar para el enfoque de dividir y conquistar
+set<double> paresCercanosAux(vector<Point> &points, double d,
+                             set<double> &registeredDistances) {
+  set<double> localDistances;
+
+  if (points.size() <= 3) {
+    // Utiliza la función de fuerza bruta para conjuntos pequeños y fusiona los
+    // resultados.
+    set<double> baseCaseDistances = paresCercanosFB(points, d);
+    registeredDistances.insert(baseCaseDistances.begin(),
+                               baseCaseDistances.end());
+    return baseCaseDistances;
   }
 
   int mid = points.size() / 2;
   Point midPoint = points[mid];
 
-  std::vector<Point> left(points.begin(), points.begin() + mid);
-  std::vector<Point> right(points.begin() + mid, points.end());
+  vector<Point> left(points.begin(), points.begin() + mid);
+  vector<Point> right(points.begin() + mid, points.end());
 
-  paresCercanosAux(left, d, outFile, method);
-  paresCercanosAux(right, d, outFile, method);
+  // Combina los resultados de las llamadas recursivas con localDistances.
+  set<double> leftDistances = paresCercanosAux(left, d, registeredDistances);
+  localDistances.insert(leftDistances.begin(), leftDistances.end());
 
-  std::vector<Point> strip;
+  set<double> rightDistances = paresCercanosAux(right, d, registeredDistances);
+  localDistances.insert(rightDistances.begin(), rightDistances.end());
+
+  vector<Point> strip; // Franja de puntos que cruzan la línea central (Strip).
+                       // Es un vector de puntos que están a una distancia menor
+                       // o igual a d de la línea central.
   for (const auto &point : points) {
     if (fabs(point.x - midPoint.x) < d) {
       strip.push_back(point);
     }
   }
 
-  std::sort(strip.begin(), strip.end(), compareY);
+  sort(strip.begin(), strip.end(), compareY);
 
+  // Revisa los puntos en la franja y agrega las distancias a localDistances.
   for (size_t i = 0; i < strip.size(); ++i) {
     for (size_t j = i + 1; j < strip.size() && (strip[j].y - strip[i].y) < d;
          ++j) {
       double dist = calculateDistance3D(strip[i], strip[j]);
       if (dist <= d) {
-        outFile << method << "," << strip.size() << "," << dist << std::endl;
-      }
-    }
-  }
-}
-
-// Fuerza bruta
-void paresCercanosFB(const std::vector<Point> &points, double d,
-                     const std::string &outputFilename) {
-  std::ofstream outFile(outputFilename, std::ios::app); // Append mode
-  auto start = std::chrono::high_resolution_clock::now();
-
-  for (size_t i = 0; i < points.size(); ++i) {
-    for (size_t j = i + 1; j < points.size(); ++j) {
-      double dist = calculateDistance3D(points[i], points[j]);
-      if (dist <= d) {
-        outFile << "FB," << points.size() << "," << dist << std::endl;
+        localDistances.insert(dist);
+        registeredDistances.insert(dist);
       }
     }
   }
 
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  std::cout << "FB Time taken: " << duration.count() << " nanoseconds"
-            << std::endl;
+  return localDistances;
 }
 
-// Dividir y conquistar
-void paresCercanosDC(std::vector<Point> &points, double d,
-                     const std::string &outputFilename) {
-  std::ofstream outFile(outputFilename, std::ios::app);
-  auto start = std::chrono::high_resolution_clock::now();
-
-  std::sort(points.begin(), points.end(), compareX);
-  paresCercanosAux(points, d, outFile, "DC");
-
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-  std::cout << "DC Time taken: " << duration.count() << " nanoseconds"
-            << std::endl;
+// Método de dividir y conquistar para encontrar pares cercanos
+set<double> paresCercanosDC(vector<Point> &points, double d) {
+  set<double> distances;
+  sort(points.begin(), points.end(), compareX);
+  distances = paresCercanosAux(points, d, distances);
+  return distances;
 }
