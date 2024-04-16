@@ -2,8 +2,15 @@
 #define ALGORITHMS_H
 
 #include "Point.h"
+#include <utility> // Para std::pair
+#include <vector>
 
-std::set<double> paresCercanosFB(const std::vector<Point> &points, double d);
-std::set<double> paresCercanosDC(std::vector<Point> &points, double d);
+// Define un tipo para hacer el código más claro
+using PointPairDist = std::pair<double, std::pair<Point, Point>>;
+
+std::vector<PointPairDist> paresCercanosFB(const std::vector<Point> &points,
+                                           double d);
+std::vector<PointPairDist> paresCercanosDC(std::vector<Point> &points,
+                                           double d);
 
 #endif // ALGORITHMS_H

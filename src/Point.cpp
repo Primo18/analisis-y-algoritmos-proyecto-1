@@ -1,7 +1,8 @@
 #include "Point.h"
 
 // Calcula la distancia Euclidiana entre dos puntos en 3D
-double calculateDistance3D(const Point &p1, const Point &p2) {
+double calculateDistance3D(const Point &p1, const Point &p2)
+{
   double dx = p1.x - p2.x;
   double dy = p1.y - p2.y;
   double dz = p1.z - p2.z;

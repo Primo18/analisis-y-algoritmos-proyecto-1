@@ -5,30 +5,36 @@
 using namespace std;
 
 // Método de fuerza bruta para encontrar pares cercanos
-set<double> paresCercanosFB(const vector<Point> &points, double d) {
-  set<double> distances;
+vector<PointPairDist> paresCercanosFB(const vector<Point> &points, double d)
+{
+  vector<PointPairDist> results;
 
-  for (size_t i = 0; i < points.size(); ++i) {
-    for (size_t j = i + 1; j < points.size(); ++j) {
+  for (size_t i = 0; i < points.size(); ++i)
+  {
+    for (size_t j = i + 1; j < points.size(); ++j)
+    {
       double dist = calculateDistance3D(points[i], points[j]);
-      if (dist <= d) {
-        distances.insert(dist);
+      if (dist <= d)
+      {
+        results.emplace_back(dist, make_pair(points[i], points[j]));
       }
     }
   }
-  return distances;
+  return results;
 }
 
 // Función auxiliar para el enfoque de dividir y conquistar
-set<double> paresCercanosAux(vector<Point> &points, double d,
-                             set<double> &registeredDistances) {
-  set<double> localDistances;
+vector<PointPairDist>
+paresCercanosAux(vector<Point> &points, double d,
+                 vector<PointPairDist> &registeredDistances)
+{
+  vector<PointPairDist> localDistances;
 
-  if (points.size() <= 3) {
-    // Utiliza la función de fuerza bruta para conjuntos pequeños y fusiona los
-    // resultados.
-    set<double> baseCaseDistances = paresCercanosFB(points, d);
-    registeredDistances.insert(baseCaseDistances.begin(),
+  if (points.size() <= 3)
+  {
+    auto baseCaseDistances = paresCercanosFB(points, d);
+    registeredDistances.insert(registeredDistances.end(),
+                               baseCaseDistances.begin(),
                                baseCaseDistances.end());
     return baseCaseDistances;
   }
@@ -39,32 +45,35 @@ set<double> paresCercanosAux(vector<Point> &points, double d,
   vector<Point> left(points.begin(), points.begin() + mid);
   vector<Point> right(points.begin() + mid, points.end());
 
-  // Combina los resultados de las llamadas recursivas con localDistances.
-  set<double> leftDistances = paresCercanosAux(left, d, registeredDistances);
-  localDistances.insert(leftDistances.begin(), leftDistances.end());
+  auto leftDistances = paresCercanosAux(left, d, registeredDistances);
+  localDistances.insert(localDistances.end(), leftDistances.begin(),
+                        leftDistances.end());
 
-  set<double> rightDistances = paresCercanosAux(right, d, registeredDistances);
-  localDistances.insert(rightDistances.begin(), rightDistances.end());
+  auto rightDistances = paresCercanosAux(right, d, registeredDistances);
+  localDistances.insert(localDistances.end(), rightDistances.begin(),
+                        rightDistances.end());
 
-  vector<Point> strip; // Franja de puntos que cruzan la línea central (Strip).
-                       // Es un vector de puntos que están a una distancia menor
-                       // o igual a d de la línea central.
-  for (const auto &point : points) {
-    if (fabs(point.x - midPoint.x) < d) {
+  vector<Point> strip; // Franja de puntos que están a distancia d de midPoint
+  for (const auto &point : points)
+  {
+    if (fabs(point.x - midPoint.x) < d)
+    {
       strip.push_back(point);
     }
   }
 
   sort(strip.begin(), strip.end(), compareY);
 
-  // Revisa los puntos en la franja y agrega las distancias a localDistances.
-  for (size_t i = 0; i < strip.size(); ++i) {
+  for (size_t i = 0; i < strip.size(); ++i)
+  {
     for (size_t j = i + 1; j < strip.size() && (strip[j].y - strip[i].y) < d;
-         ++j) {
+         ++j)
+    {
       double dist = calculateDistance3D(strip[i], strip[j]);
-      if (dist <= d) {
-        localDistances.insert(dist);
-        registeredDistances.insert(dist);
+      if (dist <= d)
+      {
+        localDistances.emplace_back(dist, make_pair(strip[i], strip[j]));
+        registeredDistances.emplace_back(dist, make_pair(strip[i], strip[j]));
       }
     }
   }
@@ -73,8 +82,9 @@ set<double> paresCercanosAux(vector<Point> &points, double d,
 }
 
 // Método de dividir y conquistar para encontrar pares cercanos
-set<double> paresCercanosDC(vector<Point> &points, double d) {
-  set<double> distances;
+vector<PointPairDist> paresCercanosDC(vector<Point> &points, double d)
+{
+  vector<PointPairDist> distances;
   sort(points.begin(), points.end(), compareX);
   distances = paresCercanosAux(points, d, distances);
   return distances;
