@@ -10,7 +10,7 @@ using namespace std;
 const double MAX_DISTANCE = 3.0; // Distancia máxima entre dos puntos para que sean considerados cercanos
 const int RUNS = 3;              // Número de veces que se ejecutará cada algoritmo
 
-// Estructura para representar pares de puntos de forma ordenada
+// Estructura para representar pares de puntos de forma ordenada, esto es para evitar duplicados
 struct OrderedPair
 {
   Point first;

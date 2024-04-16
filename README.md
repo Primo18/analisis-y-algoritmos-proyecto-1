@@ -63,6 +63,12 @@ El proyecto requiere las siguientes herramientas y bibliotecas:
 
 ## Compilación y Ejecución
 
+Para limpiar el proyecto, utiliza el siguiente comando en la terminal:
+
+```bash
+make clean
+```
+
 Para compilar el proyecto, utiliza el siguiente comando en la terminal:
 
 ```bash
@@ -75,19 +81,22 @@ Para ejecutar el programa compilado y realizar los experimentos:
 make run
 ```
 
-Este comando compilará el proyecto si es necesario y ejecutará el ejecutable resultante, almacenando los datos de rendimiento en `data/results.csv`.
+Este comando compilará el proyecto si es necesario y ejecutará el ejecutable resultante, almacenando los datos de rendimiento en los archivos `results_times.csv` y `results_distances.csv` en el directorio `data/`.
 
 ## Visualización de Datos
 
 Para visualizar los datos de rendimiento con el script de Python proporcionado:
 
-```bash
-python3 scripts/plot_results.py
+```python
+python3 scripts/plot_results_times.py # Grafica los tiempos de ejecución
+python3 scripts/scatter_plot_distances.py # Grafica las distancias entre los puntos más cercanos en 3D
 ```
 
 
-## Autor
+## Autores
 
+- Esteban Chandía
+- Macarena Madrid
 - [Daniel López](https://github.com/Primo18)
 
 ## Licencia
